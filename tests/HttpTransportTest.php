@@ -2,6 +2,7 @@
 
 namespace OpenSearch\Tests;
 
+use OpenSearch\Exception\HttpExceptionFactory;
 use OpenSearch\HttpTransport;
 use OpenSearch\RequestFactoryInterface;
 use OpenSearch\Serializers\SmartSerializer;
@@ -48,8 +49,9 @@ class HttpTransportTest extends TestCase
             ->willReturn($response);
 
         $serializer = new SmartSerializer();
+        $exceptionFactory = $this->createMock(HttpExceptionFactory::class);
 
-        $transport = new HttpTransport($client, $requestFactory, $serializer);
+        $transport = new HttpTransport($client, $requestFactory, $serializer, $exceptionFactory);
         $response = $transport->sendRequest('GET', '/');
 
         $this->assertEquals(['foo' => 'bar'], $response);

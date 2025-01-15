@@ -62,7 +62,7 @@ class LegacyTransportTest extends TestCase
     public function testPerformRequestWithServerErrorResponseException404Result()
     {
         $deferred = new Deferred();
-        $deferred->reject(new ServerErrorResponseException('foo', 404));
+        $deferred->reject(new ServerErrorResponseException(404, 'foo'));
         $future = new FutureArray($deferred->promise());
 
         $this->connection->method('performRequest')
@@ -83,7 +83,7 @@ class LegacyTransportTest extends TestCase
     public function testPerformRequestWithServerErrorResponseException500Result()
     {
         $deferred = new Deferred();
-        $deferred->reject(new ServerErrorResponseException('foo', 500));
+        $deferred->reject(new ServerErrorResponseException(500,'foo'));
         $future = new FutureArray($deferred->promise());
 
         $this->connection->method('performRequest')

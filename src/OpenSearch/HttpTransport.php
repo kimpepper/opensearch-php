@@ -2,6 +2,7 @@
 
 namespace OpenSearch;
 
+use OpenSearch\Exception\HttpExceptionFactory;
 use OpenSearch\Serializers\SerializerInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
@@ -15,6 +16,7 @@ final class HttpTransport implements TransportInterface
         protected ClientInterface $client,
         protected RequestFactoryInterface $requestFactory,
         protected SerializerInterface $serializer,
+        protected HttpExceptionFactory $httpExceptionFactory,
     ) {
     }
 
@@ -38,7 +40,14 @@ final class HttpTransport implements TransportInterface
     ): array|string|null {
         $request = $this->createRequest($method, $uri, $params, $body, $headers);
         $response = $this->client->sendRequest($request);
-        return $this->serializer->deserialize($response->getBody()->getContents(), $response->getHeaders());
+        $statusCode = $response->getStatusCode();
+        $responseBody = $response->getBody()->getContents();
+        $responseHeaders = $response->getHeaders();
+        if ($statusCode >= 400) {
+            // Throw an HTTP exception.
+            throw $this->httpExceptionFactory->create($statusCode, $responseBody, $responseHeaders);
+        }
+        return $this->serializer->deserialize($responseBody, $responseHeaders);
     }
 
 }

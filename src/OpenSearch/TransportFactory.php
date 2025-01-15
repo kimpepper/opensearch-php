@@ -4,6 +4,7 @@ namespace OpenSearch;
 
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
+use OpenSearch\Exception\HttpExceptionFactory;
 use OpenSearch\Serializers\SerializerInterface;
 use OpenSearch\Serializers\SmartSerializer;
 use Psr\Http\Client\ClientInterface;
@@ -28,20 +29,12 @@ class TransportFactory
 
     private ?ClientInterface $httpClient = null;
 
-    protected function getHttpClient(): ?ClientInterface
-    {
-        return $this->httpClient;
-    }
+    private ?HttpExceptionFactory $exceptionFactory = null;
 
     public function setHttpClient(?ClientInterface $httpClient): static
     {
         $this->httpClient = $httpClient;
         return $this;
-    }
-
-    protected function getRequestFactory(): ?RequestFactoryInterface
-    {
-        return $this->requestFactory;
     }
 
     public function setRequestFactory(?RequestFactoryInterface $requestFactory): static
@@ -106,6 +99,20 @@ class TransportFactory
         return $this;
     }
 
+    protected function getHttpExceptionFactory(): HttpExceptionFactory
+    {
+        if ($this->exceptionFactory === null) {
+            $this->exceptionFactory = new HttpExceptionFactory();
+        }
+        return $this->exceptionFactory;
+    }
+
+    public function setHttpExceptionFactory(HttpExceptionFactory $exceptionFactory): static
+    {
+        $this->exceptionFactory = $exceptionFactory;
+        return $this;
+    }
+
     /**
      * Creates a new transport.
      */
@@ -128,7 +135,12 @@ class TransportFactory
             $this->httpClient = Psr18ClientDiscovery::find();
         }
 
-        return new HttpTransport($this->httpClient, $this->requestFactory, $this->getSerializer());
+        return new HttpTransport(
+            $this->httpClient,
+            $this->requestFactory,
+            $this->getSerializer(),
+            $this->getHttpExceptionFactory()
+        );
     }
 
 }
