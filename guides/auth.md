@@ -72,53 +72,58 @@ $client = (new \OpenSearch\ClientBuilder())
 
 ### Using a Psr Client
 
+We can use the `AwsSigningHttpClientFactory` to create an HTTP Client to sign the requests using the AWS SDK for PHP.
+
+Require a PSR-18 client (e.g. Symfony) and the AWS SDK for PHP:
+
+```bash
+composer require symfony/http-client aws/aws-sdk-php
+```
+
+Create a PSR HTTP Client (e.g. Symfony):
+
 ```php
-$symfonyPsr18Client = (new \Symfony\Component\HttpClient\Psr18Client())->withOptions([
-    'base_uri' => $endpoint,
-    'headers' => [
-        'Accept' => 'application/json',
-        'Content-Type' => 'application/json',
-    ],
+$endpoint = 'https://search-example.us-west-2.es.amazonaws.com';
+
+$symfonyClient = (new \OpenSearch\HttpClient\SymfonyHttpClientFactory()->create([
+    'base_uri' => $endpoint, // required.
 ]);
+```
 
+Use the `AwsSigningHttpClientFactory` to create a signing HTTP client:
+```php
+$signingHttpClient = (new \OpenSearch\Aws\AwsSigningHttpClientFactory($symfonyClient))->create([
+    'access_key' => '...', // optional. Will fallback to AWS SDK credential discovery.
+    'secret_key' => '...', // optional. Will fallback to AWS SDK credential discovery.
+    'base_uri' => $endpoint, // required for signing.
+    'region' => 'us-west-2', // required for signing.
+    'session_token' => '...', // optional.
+    'service' => 'es', // optional. Allowed values are: 'es', 'aoss'. Defaults to 'es'.
+  ],
+]);
+```
+
+Create a request factory:
+```php
 $serializer = new \OpenSearch\Serializers\SmartSerializer();
-$endpointFactory = new \OpenSearch\EndpointFactory();
-
-$signer = new Aws\Signature\SignatureV4(
-    $service,
-    $region
-);
-
-$credentials = new Aws\Credentials\Credentials(
-    $aws_access_key_id,
-    $aws_secret_access_key,
-    $aws_session_token
-);
-
-$signingClient = new \OpenSearch\Aws\SigningClientDecorator(
-    $symfonyPsr18Client,
-    $credentials,
-    $signer, 
-    [
-        'Host' => parse_url(getenv("ENDPOINT"))['host']
-    ]
-);
 
 $requestFactory = new \OpenSearch\RequestFactory(
-    $symfonyPsr18Client,
-    $symfonyPsr18Client,
-    $symfonyPsr18Client,
+    $symfonyClient,
+    $symfonyClient,
+    $symfonyClient,
     $serializer,
 );
+```
 
+Create a transport:
+```php
 $transport = (new \OpenSearch\TransportFactory())
-    ->setHttpClient($signingClient)
+    ->setHttpClient($signingHttpClient)
     ->setRequestFactory($requestFactory)
     ->create();
+```
 
-$client = new \OpenSearch\Client(
-    $transport,
-    $endpointFactory,
-    []
-);
+Create the OpenSearch client:
+```php
+$client = new \OpenSearch\Client($transport, new \OpenSearch\EndpointFactory());
 ```
