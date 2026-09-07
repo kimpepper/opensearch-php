@@ -2,8 +2,7 @@
 
 Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
-## [Unreleased]
-### Added
+## [2.7.0]
 ### Changed
 - Replace deprecated GitHub App token with opensearch-ci-bot in CI workflows ([#416](https://github.com/opensearch-project/opensearch-php/pull/416))
 - Upgrade `phpunit/phpunit` to `^11.5` ([#414](https://github.com/opensearch-project/opensearch-php/pull/414))
@@ -11,12 +10,11 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Deprecated
 - Passing a `CredentialProvider` instance to `SigningClientFactory` is deprecated; pass a `callable` instead ([#404](https://github.com/opensearch-project/opensearch-php/issues/404))
 ### Removed
-- Drop CI integration testing against EOL OpenSearch 1.x and legacy Elasticsearch OSS 7.10.0
+- Drop CI integration testing against EOL OpenSearch 1.x and legacy Elasticsearch OSS 7.10.0 ([#415](https://github.com/opensearch-project/opensearch-php/issues/415))
 ### Fixed
 - Fix `SmartSerializer` throwing `JsonException` on JSON with unpaired UTF-16 surrogate escape sequences produced by search highlighting ([#403](https://github.com/opensearch-project/opensearch-php/pull/403))
 - Accept any `callable` as the `provider` argument of `SigningClientFactory` so AWS SDK credential providers like `CredentialProvider::sso()` and `CredentialProvider::assumeRole()` can be used ([#404](https://github.com/opensearch-project/opensearch-php/issues/404))
 - Update OpenAPI spec download location to `https://api-spec.opensearch.org/opensearch-openapi.yaml` ([#420](https://github.com/opensearch-project/opensearch-php/pull/420))
-### Security
 ### Updated APIs
 - Updated opensearch-php APIs to reflect [opensearch-api-specification@59c22e5](https://github.com/opensearch-project/opensearch-api-specification/commit/59c22e5a0cd79a851451c674b0600307c022fdb4)
 - Updated opensearch-php APIs to reflect [opensearch-api-specification@b8c2a41](https://github.com/opensearch-project/opensearch-api-specification/commit/b8c2a411c01f42c6153c7b6e122b9e98285101b7)
