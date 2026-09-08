@@ -115,7 +115,7 @@ use OpenSearch\Endpoints\UpdateByQueryRethrottle;
  */
 class Client
 {
-    public const VERSION = '2.6.0';
+    public const VERSION = '2.7.0';
 
     /**
      * @var Transport
